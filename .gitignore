@@ -1,0 +1,28 @@
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python environment and cache
+.venv/
+__pycache__/
+*.py[cod]
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+
+# macOS
+.DS_Store
+
+
+# Generated vector indexes and test artifacts
+vector_store/
+vector_store_test/
+
+# Keep private source documents out of Git.
+# Add only safe, non-sensitive sample documents later.
+data/*
+!data/sample_docs/
+!data/sample_docs/**
