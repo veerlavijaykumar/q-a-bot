@@ -18,11 +18,13 @@ frontend/dist/
 
 
 # Generated vector indexes and test artifacts
-vector_store/
+vector_store/*
+!vector_store/.gitkeep
 vector_store_test/
 
 # Keep private source documents out of Git.
 # Add only safe, non-sensitive sample documents later.
 data/*
+!data/.gitkeep
 !data/sample_docs/
 !data/sample_docs/**

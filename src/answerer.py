@@ -24,7 +24,7 @@ REFUSAL = (
 
 def answer_question_with_details(
     question: str,
-    top_k: int = 3,
+    top_k: int = 5,
     results: list[dict] | None = None,
     generation_model: str | None = None,
 ) -> dict:
@@ -90,11 +90,12 @@ You are a document question-answering assistant.
 Answer the user's question using only the supplied context.
 
 Rules:
-1. Give a direct answer.
+1. Give a direct, comprehensive, and well-structured answer using the supplied context. If asked to list items, patterns, or topics, list all that appear across the supplied context.
 2. Examine all supplied chunks before deciding information is missing.
-3. Do not invent facts or use outside knowledge.
-4. If evidence is insufficient, respond exactly:
+3. Do not invent facts or use outside knowledge. Rely strictly on the supplied context.
+4. If the supplied context contains no information relevant to the question, respond exactly:
    "{REFUSAL}"
+   If the context contains relevant or partial information, synthesize and provide what is supported by the context without refusing.
 5. Use only the filename and page combinations in ALLOWED CITATIONS.
 6. Never invent a filename or page number.
 7. Cite only sources that support your claims.
@@ -140,7 +141,7 @@ Answer:
 
 def answer_question(
     question: str,
-    top_k: int = 3,
+    top_k: int = 5,
     results: list[dict] | None = None,
 ) -> str:
     """Generate an answer using retrieved document chunks."""

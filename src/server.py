@@ -43,7 +43,7 @@ app.add_middleware(
 
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=1, description="Question to answer using indexed documents")
-    top_k: int = Field(3, ge=1, le=10, description="Number of context chunks to retrieve")
+    top_k: int = Field(5, ge=1, le=10, description="Number of context chunks to retrieve")
     model: Optional[str] = Field(None, description="Optional Gemini generation model override")
 
 
@@ -280,4 +280,6 @@ if FRONTEND_DIST.exists():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.getenv("PORT", 8000))
+    is_dev = os.getenv("ENVIRONMENT", "development").lower() == "development"
+    uvicorn.run("server:app", host="0.0.0.0", port=port, reload=is_dev)

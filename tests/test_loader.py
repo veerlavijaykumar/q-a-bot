@@ -101,6 +101,24 @@ class TestDocumentLoader(unittest.TestCase):
             "docx",
         )
 
+    def test_load_docx_with_table(self):
+        file_path = self.data_dir / "table_sample.docx"
+
+        document = Document()
+        document.add_paragraph("Table Heading")
+        table = document.add_table(rows=2, cols=2)
+        table.rows[0].cells[0].text = "Header 1"
+        table.rows[0].cells[1].text = "Header 2"
+        table.rows[1].cells[0].text = "Value 1"
+        table.rows[1].cells[1].text = "Value 2"
+        document.save(file_path)
+
+        records = load_documents(str(self.data_dir))
+        table_record = next(r for r in records if r["metadata"]["source"] == "table_sample.docx")
+        self.assertIn("Table Heading", table_record["text"])
+        self.assertIn("Value 1", table_record["text"])
+        self.assertIn("Value 2", table_record["text"])
+
     def test_unsupported_file_is_ignored(self):
         (self.data_dir / "sample.xyz").write_text(
             "Unsupported format",

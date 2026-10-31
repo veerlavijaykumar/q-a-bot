@@ -4,6 +4,8 @@ import re
 
 import pymupdf
 from docx import Document
+from docx.text.paragraph import Paragraph
+from docx.table import Table
 from PIL import Image
 import pytesseract
 from io import BytesIO
@@ -76,15 +78,63 @@ def load_txt(path: Path) -> list[dict]:
 
 
 def load_docx(path: Path) -> list[dict]:
-    """Extract non-empty paragraphs from a Word document."""
+    """Extract non-empty paragraphs and tables from a Word document in document order."""
     document = Document(path)
-    text = clean_text(
-        "\n".join(
-            paragraph.text
-            for paragraph in document.paragraphs
-            if paragraph.text.strip()
-        )
-    )
+    lines = []
+    current_heading = ""
+
+    for element in document.element.body:
+        tag = element.tag.split("}")[-1]
+        if tag == "p":
+            p = Paragraph(element, document)
+            text = p.text.strip()
+            if text:
+                lines.append(text)
+                if p.style.name.startswith("Heading"):
+                    current_heading = text
+        elif tag == "tbl":
+            tbl = Table(element, document)
+            rows = tbl.rows
+            if not rows:
+                continue
+
+            seen = set()
+            header_cells = []
+            for c in rows[0].cells:
+                if c._tc not in seen:
+                    seen.add(c._tc)
+                    header_cells.append(c.text.strip().replace("\n", " "))
+
+            is_pattern_map = "pattern" in current_heading.lower()
+
+            for r_idx, row in enumerate(rows):
+                seen_cells = set()
+                cells = []
+                for cell in row.cells:
+                    if cell._tc not in seen_cells:
+                        seen_cells.add(cell._tc)
+                        cells.append(cell.text.strip().replace("\n", " "))
+
+                if not any(cells):
+                    continue
+
+                if is_pattern_map and len(cells) == 2:
+                    row_str = f"Pattern: {cells[1]} | Problem Cue: {cells[0]}"
+                elif len(cells) > 1 and len(header_cells) == len(cells) and r_idx > 0 and any(h.lower() in ("period", "focus", "name", "type", "description") for h in header_cells):
+                    row_str = " | ".join(f"{h}: {v}" for h, v in zip(header_cells, cells))
+                else:
+                    row_str = " | ".join(cells)
+
+                if row_str.strip():
+                    lines.append(row_str)
+
+    # Fallback to standard paragraphs if body element traversal yielded nothing
+    if not lines:
+        for p in document.paragraphs:
+            if p.text.strip():
+                lines.append(p.text.strip())
+
+    text = clean_text("\n".join(lines))
 
     if not text:
         return []

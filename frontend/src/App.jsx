@@ -70,7 +70,7 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [topK, setTopK] = useState(3);
+  const [topK, setTopK] = useState(5);
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
   const [expandedEvidence, setExpandedEvidence] = useState({});
   const [copiedIndex, setCopiedIndex] = useState(null);

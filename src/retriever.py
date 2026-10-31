@@ -18,7 +18,7 @@ MODEL_NAME = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
 
 def retrieve_chunks(
     question: str,
-    top_k: int = 3,
+    top_k: int = 5,
     store_dir: str | Path | None = None,
 ) -> list[dict]:
     """Retrieve the most relevant chunks for a question."""
